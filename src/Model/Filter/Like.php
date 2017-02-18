@@ -100,6 +100,9 @@ class Like extends Base
         list($model, $field) = explode('.', $field);
 
         $columnSchema = $this->query()->repository()->getSchema()->column($field);
+        if (!$columnSchema) {
+            return false;
+        }
         if ($columnSchema['type'] === 'string') {
             return false;
         }
