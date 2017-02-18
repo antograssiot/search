@@ -99,7 +99,7 @@ class Like extends Base
         }
         list($model, $field) = explode('.', $field);
 
-        $columnSchema = $this->query()->repository()->getSchema()->column($field);
+        $columnSchema = $this->query()->repository()->schema()->column($field);
         if (!$columnSchema) {
             return false;
         }
