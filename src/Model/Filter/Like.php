@@ -56,7 +56,12 @@ class Like extends Base
         $isMultiValue = is_array($value);
 
         $conditions = [];
+        $types = [];
         foreach ($this->fields() as $field) {
+            if ($this->_requiresTypeMapping($field)) {
+                $types[$field] = 'string';
+            }
+
             $left = $field . ' ' . $comparison;
             if ($isMultiValue) {
                 $valueConditions = [];
@@ -78,8 +83,28 @@ class Like extends Base
         }
 
         if (!empty($conditions)) {
-            $this->query()->andWhere([$this->config('fieldMode') => $conditions]);
+            $this->query()->andWhere([$this->config('fieldMode') => $conditions], $types);
         }
+    }
+
+    /**
+     * @param string $field
+     *
+     * @return bool
+     */
+    protected function _requiresTypeMapping($field)
+    {
+        if (strpos($field, '.') === false) {
+            return false;
+        }
+        list($model, $field) = explode('.', $field);
+
+        $columnSchema = $this->query()->repository()->getSchema()->column($field);
+        if ($columnSchema['type'] === 'string') {
+            return false;
+        }
+
+        return true;
     }
 
     /**
